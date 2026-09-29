@@ -9,6 +9,7 @@ struct NotchNotificationsView: View {
     @ObservedObject private var permissions = Permissions.shared
     @ObservedObject private var l10n = L10n.shared
     private var text: NotchNotificationStrings { FeatureStrings.notchNotifications(l10n.language) }
+    private static let headerHeight: CGFloat = 22
 
     var body: some View {
         Group {
@@ -31,13 +32,28 @@ struct NotchNotificationsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
+                let railHeight = size.height - Self.headerHeight - 8
                 let rows = NotchLayout.railRows(count: service.items.count,
                                                 perRow: NotchLayout.railCapacity(width: size.width, itemWidth: 240, spacing: 8),
-                                                rowHeight: 120, spacing: 8, height: size.height)
-                let cardHeight = (size.height - CGFloat(rows - 1) * 8) / CGFloat(rows)
-                NotchRail(items: service.items, rows: rows, itemWidth: 240, width: size.width) { item in
-                    NotchNotificationRow(item: item, service: service, text: text)
-                        .frame(height: cardHeight)
+                                                rowHeight: 120, spacing: 8, height: railHeight)
+                let cardHeight = (railHeight - CGFloat(rows - 1) * 8) / CGFloat(rows)
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "bell").accessibilityHidden(true)
+                        Text(service.items.count, format: .number).monospacedDigit()
+                            .accessibilityLabel(text.title)
+                            .accessibilityValue(Text(service.items.count, format: .number))
+                        Spacer(minLength: 8)
+                        Button(text.clearAll) { service.clearAll() }
+                            .buttonStyle(.bordered).controlSize(.small)
+                            .disabled(service.openingID != nil)
+                    }
+                    .font(.system(size: 11)).foregroundStyle(.white.opacity(0.6))
+                    .frame(height: Self.headerHeight)
+                    NotchRail(items: service.items, rows: rows, itemWidth: 240, width: size.width) { item in
+                        NotchNotificationRow(item: item, service: service, text: text)
+                            .frame(height: cardHeight)
+                    }
                 }
             }
         }
