@@ -375,6 +375,12 @@ struct NotchView: View {
             && !service.showingSections && !service.modules.isEmpty
     }
 
+    /// Notifications show only cards too; every row of height is theirs.
+    private var showsNotificationsClear: Bool {
+        service.selected == .notifications && !showsDetail
+            && !service.showingSections && !service.modules.isEmpty
+    }
+
     private var cameraHeaderActions: some View {
         ViewThatFits(in: .horizontal) {
             cameraHeaderActions(compactUpdate: false).fixedSize(horizontal: true, vertical: false)
@@ -390,6 +396,7 @@ struct NotchView: View {
                     Button(text.customizeTools) { launcher.isEditing.toggle() }
                 }
                 if showsCapturesClear { NotchClearCapturesButton(inMenu: true) }
+                if showsNotificationsClear { NotchClearNotificationsButton(inMenu: true) }
                 Button(service.pinned ? text.unpin : text.pin) { service.pinned.toggle() }
                 Button(l10n.s.menuSettings, action: service.openSettings)
                 Button(text.collapse, action: service.collapse)
@@ -421,6 +428,7 @@ struct NotchView: View {
                 }
             }
             if showsCapturesClear { NotchClearCapturesButton() }
+            if showsNotificationsClear { NotchClearNotificationsButton() }
             // Keeping the island open is one click, like the floating buttons;
             // a header button steps aside when the same action floats beside it.
             if !quickActions.contains(.pin) {
