@@ -51,20 +51,13 @@ struct NotchNotificationsView: View {
 /// like the captures page's. Observes the inbox on its own, so a new message
 /// does not redraw the island.
 struct NotchClearNotificationsButton: View {
-    var inMenu = false
     @ObservedObject private var notifications = NotchNotificationService.shared
     @ObservedObject private var l10n = L10n.shared
 
     var body: some View {
-        let title = FeatureStrings.notchNotifications(l10n.language).clearAll
-        let unavailable = notifications.items.isEmpty || notifications.openingID != nil
-        if inMenu {
-            Button(title, role: .destructive, action: Self.confirmClearAboveIsland)
-                .disabled(unavailable)
-        } else {
-            NotchIconButton(symbol: "trash", title: title, action: Self.confirmClearAboveIsland)
-                .disabled(unavailable)
-        }
+        NotchIconButton(symbol: "trash", title: FeatureStrings.notchNotifications(l10n.language).clearAll,
+                        action: Self.confirmClearAboveIsland)
+            .disabled(notifications.items.isEmpty || notifications.openingID != nil)
     }
 
     /// With the system banner dismissed, a banner shown while the island was
